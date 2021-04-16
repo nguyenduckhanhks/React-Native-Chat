@@ -1,20 +1,18 @@
 import React, {useState} from 'react';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
-import LinearGradient from 'react-native-linear-gradient';
-import { Button } from 'react-native-elements';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
+import LinearGradient from 'react-native-linear-gradient';
 
 const ForgotPassword = (props) => {
     const [username, setUsername] = useState(null)
 
     return (
-        <LinearGradient
-            style={styles.gradient}
-            colors={['#f26a50', '#f20042', '#f20045']}
+        <View
+            style={{paddingHorizontal: 10}}
         >
             <View>
                 <Text style={styles.title}>Reset Password!</Text>
-                <Text style={{textAlign: 'center', color: '#fff', fontSize: 15, padding: 20}}>Enter your username below to get paswword!</Text>
+                <Text style={{textAlign: 'center', color: 'black', fontSize: 15, padding: 20}}>Enter your username below to get paswword!</Text>
             </View>
             <View>
                 <View style={styles.inputSection}>
@@ -26,13 +24,19 @@ const ForgotPassword = (props) => {
                         onChangeText={setUsername}
                     />
                 </View>
-                <Button
-                    title="Get Password"
-                    buttonStyle={styles.button}
+
+                <TouchableOpacity 
+                    style={styles.button} 
                     onPress={() => {
-                        // reset password
+                        props.navigation.navigate('Home')
                     }}
-                />
+                >
+                    <LinearGradient colors={['#f26a50', '#f20042', '#f20045']} style={styles.gradient}>
+                        <Text style={styles.text}>
+                                Lấy mật khẩu</Text>
+                    </LinearGradient>
+                </TouchableOpacity>
+
                 <View style={{flexDirection:'row', marginTop: 30, width:'50%', marginHorizontal: '25%', alignItems: 'center'}}>
                     <Text style={{fontSize: 15}}>Have an account?</Text>
                     <Text 
@@ -45,7 +49,7 @@ const ForgotPassword = (props) => {
                     </Text>
                 </View>
             </View>
-        </LinearGradient>
+        </View>
     )
 }
 
@@ -66,13 +70,10 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     gradient:{
-        height:'100%',
-        position:"absolute",
-        left:0,
-        right:0,
-        top:0,
-        paddingHorizontal:20,
-        paddingTop:30
+        flex: 1,
+        justifyContent: 'center',
+        alignItems:'center',
+        borderRadius: 40
     },
     input:{
         fontFamily:'Montserrat_600SemiBold',
@@ -80,19 +81,21 @@ const styles = StyleSheet.create({
         color:'#f20042',
     },
     button: {
-        borderRadius:40,
-        marginTop: 30,
-        width: '80%',
-        alignItems: 'center',
-        height: 60,
-        marginHorizontal: '10%'
+        width: '70%',
+        marginLeft:'15%',
+        marginTop: 40,
+        height: 50,
     },
     title: {
         textAlign: 'center',
         fontSize: 40,
         fontFamily: 'Montserrat_600SemiBold',
         fontWeight: 'bold',
-        color: '#fff',
+        color: 'black',
         marginTop: 70
+    },
+    text: {
+        color: 'white',
+        fontSize: 20,
     }
 })

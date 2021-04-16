@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { Text, View, StyleSheet, ActivityIndicator, Animated } from 'react-native';
+import { Text, View, StyleSheet, ActivityIndicator, Animated, Image, TouchableOpacity } from 'react-native';
 import { ScrollView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
@@ -41,6 +41,9 @@ const Chat = (props) => {
             colors={['#f26a50', '#f20042', '#f20045']}
         >
             <View style={styles.headerContainer}>
+                <TouchableOpacity  onPress={() => {props.navigation.navigate('Profile', {type: 'myProfile'})}}>
+                    <Image source={require('../assets/avatar.jpg')} style={styles.image}/>
+                </TouchableOpacity>
                 <Text style={styles.header}>Chat</Text>
                 <Ionicons name='add' color='#fff' size={30} onPress={() => {
                     props.navigation.navigate('CreateChat')
@@ -159,5 +162,11 @@ const styles = StyleSheet.create({
         color:'#000119',
         flex:1,
         fontSize:20
+    },
+    image:{
+        width:30,
+        height:30,
+        borderRadius:15,
+        marginRight: 10
     }
 })

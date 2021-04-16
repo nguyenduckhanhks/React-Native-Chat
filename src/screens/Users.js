@@ -1,10 +1,13 @@
-import React from 'react';
-import { Text, View, StyleSheet, TouchableOpacity } from 'react-native';
+import React, { useEffect } from 'react';
+import { Text, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { users } from '../api/data';
 
 import ListUser from '../components/Users/ListUser'
 
 const Users = (props) => {
+    useEffect(() => {
+        
+    })
     return(
         <View
             style={styles.gradient}

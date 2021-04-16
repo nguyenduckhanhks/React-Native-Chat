@@ -1,7 +1,6 @@
 import React, {useState} from 'react';
-import { View, Text, StyleSheet, TextInput } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
-import { Button } from 'react-native-elements';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 const Login = (props) => {
@@ -10,10 +9,7 @@ const Login = (props) => {
     const [password, setPassword] = useState(null)
 
     return (
-        <LinearGradient
-            style={styles.gradient}
-            colors={['#f26a50', '#f20042', '#f20045']}
-        >
+        <View style={{paddingHorizontal: 10}}>
             <View>
                 <Text style={styles.title}>Welcome back!</Text>
             </View>
@@ -45,13 +41,19 @@ const Login = (props) => {
                 >
                     Forgot password?
                 </Text>
-                <Button
-                    title="Đăng nhập"
-                    buttonStyle={styles.button}
+
+                <TouchableOpacity 
+                    style={styles.button} 
                     onPress={() => {
                         props.navigation.navigate('Home')
                     }}
-                />
+                >
+                    <LinearGradient colors={['#f26a50', '#f20042', '#f20045']} style={styles.gradient}>
+                        <Text style={styles.text}>
+                                Đăng nhập</Text>
+                    </LinearGradient>
+                </TouchableOpacity>
+
                 <View style={{flexDirection:'row', marginTop: 30, width:'50%', marginHorizontal: '25%', alignItems: 'center'}}>
                     <Text style={{fontSize: 15}}>Don't have account?</Text>
                     <Text 
@@ -64,7 +66,7 @@ const Login = (props) => {
                     </Text>
                 </View>
             </View>
-        </LinearGradient>
+        </View>
     )
 }
 
@@ -85,13 +87,10 @@ const styles = StyleSheet.create({
         padding: 10,
     },
     gradient:{
-        height:'100%',
-        position:"absolute",
-        left:0,
-        right:0,
-        top:0,
-        paddingHorizontal:20,
-        paddingTop:30
+        flex: 1,
+        justifyContent: 'center',
+        alignItems:'center',
+        borderRadius: 40
     },
     input:{
         fontFamily:'Montserrat_600SemiBold',
@@ -99,19 +98,21 @@ const styles = StyleSheet.create({
         color:'#f20042',
     },
     button: {
-        borderRadius:40,
-        marginTop: 30,
-        width: '80%',
-        alignItems: 'center',
-        height: 60,
-        marginHorizontal: '10%'
+        width: '70%',
+        marginLeft:'15%',
+        marginTop: 40,
+        height: 50,
     },
     title: {
         textAlign: 'center',
         fontSize: 40,
         fontFamily: 'Montserrat_600SemiBold',
         fontWeight: 'bold',
-        color: '#fff',
+        color: 'black',
         marginTop: 70
+    },
+    text: {
+        color: 'white',
+        fontSize: 20,
     }
 })
