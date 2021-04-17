@@ -1,12 +1,22 @@
 import React, {useState} from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, Alert } from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/Ionicons';
+import firebase, { auth } from 'react-native-firebase'
 
 const Login = (props) => {
-    const [username, setUsername] = useState(null)
+    const [email, setEmail] = useState('user2@gmail.com')
+    const [password, setPassword] = useState('111111')
 
-    const [password, setPassword] = useState(null)
+    const onLogin = () => {
+        firebase.auth().signInWithEmailAndPassword(email, password)
+        .then((res) => {
+            props.navigation.navigate('Home')
+        })
+        .catch(error => {
+            Alert.alert('Email hoặc mật khẩu không chính xác!')
+        });
+    }
 
     return (
         <View style={{paddingHorizontal: 10}}>
@@ -17,10 +27,10 @@ const Login = (props) => {
                 <View style={styles.inputSection}>
                     <Icon style={styles.inputIcon} name="person-outline" size={20} color="#f20042"/>
                     <TextInput
-                        placeholder='Tên tài khoản'
+                        placeholder='Email'
                         style={styles.input}
-                        value={username}
-                        onChangeText={setUsername}
+                        value={email}
+                        onChangeText={setEmail}
                     />
                 </View>
                 <View style={styles.inputSection}>
@@ -44,9 +54,7 @@ const Login = (props) => {
 
                 <TouchableOpacity 
                     style={styles.button} 
-                    onPress={() => {
-                        props.navigation.navigate('Home')
-                    }}
+                    onPress={() => onLogin()}
                 >
                     <LinearGradient colors={['#f26a50', '#f20042', '#f20045']} style={styles.gradient}>
                         <Text style={styles.text}>

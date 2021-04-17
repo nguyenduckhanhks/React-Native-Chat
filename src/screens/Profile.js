@@ -17,6 +17,8 @@ const Profile = (props) => {
     const [address, setAddress] = useState('')
     const [isEdit, setIsEdit] = useState(false)
 
+    const [type, setType] = useState('')
+
     useEffect(async () => {
         getData()
     }, [])
@@ -25,7 +27,7 @@ const Profile = (props) => {
         firebase.auth().onAuthStateChanged(user => {
             if(!user) return props.navigation.navigate('Login')
         })
-        if(props.route.params.type == 'myProfile') {
+        if(props.route && props.route.params && props.route.params.type == 'myProfile') {
             let user = firebase.auth()
             if(!user) return props.navigation.navigate('Login')
 
@@ -44,6 +46,29 @@ const Profile = (props) => {
             setGender(userData['_data']['gender'])
             setTel(userData['_data']['tel'])
             setEmail(user['_user']['email'])
+            setType(props.route.params.type)
+        }
+
+        if(props.route && props.route.params && props.route.params.type == 'account') {
+            let user = firebase.auth()
+            if(!user) return props.navigation.navigate('Login')
+
+            let uid = user['_user']['uid']
+            setUids(uid)
+            let userData = await firebase.firestore()
+                    .collection('users')
+                    .doc(uid)
+                    .get()
+            if(!userData['_data']) {
+                Alert.alert('Không tìm thấy thông tin người dùng!')
+                return props.navigation.navigate('Login')
+            }
+            setBirthday(userData['_data']['birthday'])
+            setName(userData['_data']['name'])
+            setGender(userData['_data']['gender'])
+            setTel(userData['_data']['tel'])
+            setEmail(user['_user']['email'])
+            setType(props.route.params.type)
         }
     }
 

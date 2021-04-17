@@ -2,7 +2,7 @@ import React from 'react';
 import {View,Text,StyleSheet} from 'react-native';
 import LinearGradient from 'react-native-linear-gradient';
 
-const Sent = ({message}) => {
+const Sent = ({message, create}) => {
     return(
         <View style={styles.container}>
             <LinearGradient
@@ -11,7 +11,7 @@ const Sent = ({message}) => {
             >
                 <Text style={styles.text}>{message}</Text>
             </LinearGradient>
-            <Text style={styles.duration}>12:34 AM</Text>
+            <Text style={styles.duration}>{create}</Text>
         </View>
     )
 }

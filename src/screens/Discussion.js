@@ -1,41 +1,140 @@
-import React, {useState} from 'react';
+import React, {useEffect, useState, useRef} from 'react';
 import Icon from 'react-native-vector-icons/Ionicons'
 import {View, Text, Image, StyleSheet} from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { ScrollView, TouchableOpacity } from 'react-native-gesture-handler';
 import {dataMessageConst} from '../api/data';
+import firebase from 'react-native-firebase';
 
 import Header from '../components/Discussion/Header';
 import ChatPanel from '../components/Discussion/ChatPanel';
 import Input from '../components/Discussion/InputChat';
 
+function usePrevious(value) {
+    const ref = useRef();
+    useEffect(() => {
+      ref.current = value;
+    });
+    return ref.current;
+}
+
 const Discussion = ({ route, navigation }) =>  {
-    const { itemName , itemPic } = route.params;
-    const [inputMessage, setMessage] = useState('');
+    const [uid, setUid] =  useState('')
+    const [inputMessage, setInputMessage] = useState('abc')
+    const [chats, setChats] = useState({})
+    const [listMessage, setListMessage] = useState([])
+    const [chatName, setChatName] = useState('')
+    const [chatPhoto, setChatPhoto] = useState('')
+    const preState = usePrevious({chats})
+
+    useEffect(() => {
+        firebase.auth().onAuthStateChanged(async (user) => {
+            if(!user) return navigation.navigate('Login')
+            await setUid(user['uid'])
+            await getChats()
+            if(JSON.stringify(preState.chats) !== JSON.stringify(chats)) {
+                await getMessage()
+            }
+        })
+        setChatName(route.params.chatName)
+        setChatPhoto(route.params.chatPhoto)
+    }, [uid, chats])
+
+    const getMessage = () => {
+        if(!chats) return
+        firebase.firestore()
+                .collection('messages')
+                .where('chat_id', '=', chats['id'])
+                .onSnapshot(querySnapshot => {
+                    setListMessage( querySnapshot.docs.map(doc => {
+                        const data = doc.data()
+                        return {
+                            id: doc.id,
+                            ...data
+                        }
+                    }).sort((a, b) =>
+                        a['create'] > b['create'] ? 1 : -1
+                    ))
+                })
+    }
 
     const sendMessage = () => {
-        console.log(inputMessage)
+        //check have chat exis:
+        // TH chat vs tk
+        if(Object.keys(chats).length === 0) {
+            const newChat = {
+                members: [uid, route.params.userId],
+                admin: uid,
+                name: '',
+                photo: ''
+            }
+            firebase.firestore()
+                    .collection('chats')
+                    .add(newChat)
+                    .then(async(res) => {
+                        const newMessage = {
+                           message: inputMessage,
+                           auth: uid,
+                           chat_id: res.id,
+                           create: Date.now(),
+                           status: 'unread'
+                        }
+                        firebase.firestore()
+                                .collection('messages')
+                                .add(newMessage)
+                    })
+        } else {
+            const newMessage = {
+                message: inputMessage,
+                auth: uid,
+                chat_id: chats.id,
+                create: Date.now(),
+                status: 'unread'
+            }
+            firebase.firestore()
+                    .collection('messages')
+                    .add(newMessage)
+        }
     };
+
+    const getChats = () => {
+        // if type = user
+        if(route.params.type === 'user')
+            firebase.firestore()
+                    .collection('chats')
+                    .onSnapshot(querySnapshot => {
+                        querySnapshot.docs.forEach(doc => {
+                            if(doc.data()['members'].length == 2 && doc.data()['members'].includes(route.params.userId) && doc.data()['members'].includes(uid)) {
+                                setChats({
+                                    id: doc.id,
+                                    ...doc.data()
+                                })
+                                return
+                            }
+                        })
+                    })
+    }
 
     return(
         <View style={styles.container}>
             <View style={styles.main}>
                 <Header
-                    itemPic={itemPic}
-                    itemName={itemName}
+                    itemPic={chatPhoto}
+                    itemName={chatName}
                     onPressBack={() => {
                         navigation.goBack()
                     }}
                     navigation={navigation}
                 />
                 <ChatPanel
-                    itemPic={itemPic}
-                    dataMessage={dataMessageConst}
+                    itemPic={chatPhoto}
+                    dataMessage={listMessage}
+                    uid={uid}
                 />
             </View>
             <Input
                 inputMessage={inputMessage}
-                setMessage={(inputMessage) => setMessage(inputMessage)}
+                setMessage={(inputMessage) => setInputMessage(inputMessage)}
                 onSendPress={sendMessage}
             />
         </View>

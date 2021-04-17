@@ -59,7 +59,9 @@ const SignUp = (props) => {
                         .doc(res['user']['uid'])
                         .set(newUser)
                         .then(() => {
-                            props.navigation.navigate('Profile')
+                            props.navigation.navigate('Profile', {
+                                type: 'myProfile'
+                            })
                         })
                         .catch(err => {
                             Alert.alert(err['message'])

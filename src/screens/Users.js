@@ -1,12 +1,26 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { Text, View, StyleSheet, TouchableOpacity, Image } from 'react-native';
-import { users } from '../api/data';
+// import { users } from '../api/data';
+import firebase from 'react-native-firebase';
 
 import ListUser from '../components/Users/ListUser'
 
 const Users = (props) => {
+    const [users, setUsers] = useState([])
     useEffect(() => {
-        
+        firebase.firestore()
+                .collection('users')
+                .where('status', '=' , 'online')
+                .onSnapshot(querySnapshot => {
+                    const usersData = querySnapshot.docs.map(doc => {
+                        const data = doc.data()
+                        return {
+                            uid: doc.id,
+                            ...data
+                        }
+                    })
+                    setUsers(usersData)
+                })
     })
     return(
         <View

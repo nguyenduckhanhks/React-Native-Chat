@@ -10,17 +10,18 @@ const ListUser = (props) => {
                 <TouchableOpacity 
                     onPress={() => {
                         props.navigation.navigate('Discussion',{
-                            itemId:item.id,
-                            itemName:item.login,
-                            itemPic:item.avatar_url
+                            chatName:item.name,
+                            chatPhoto:item.photo,
+                            userId:item.uid,
+                            type: 'user'
                         });
                     }}
                     style={styles.container}
-                    key={item.id}
+                    key={item.uid}
                 >       
-                        <Image source={{uri: item.avatar_url}} style={styles.image}/>
+                        <Image source={require('../../assets/avatar.jpg')} style={styles.image}/>
                         <View style={styles.test}>
-                            <Text style={styles.username}>{item.login}</Text>
+                            <Text style={styles.username}>{item.name}</Text>
                             <LinearGradient
                                 colors={['#09c6f9', '#045de9', '#045de9']}
                                 style={styles.online}

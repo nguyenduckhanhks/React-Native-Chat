@@ -5,7 +5,7 @@ import {View,Text,StyleSheet,Image} from 'react-native';
 const Received = ({image, message}) => {
     return(
         <View style={styles.container}>
-          <Image source={{uri:image}} style={styles.img}/>
+          <Image source={require('../../assets/avatar.jpg')} style={styles.img}/>
           <View>
                <Text style={styles.message}>{message}</Text>
                <Text style={styles.duration}>12:13 AM</Text>

@@ -17,11 +17,13 @@ const Header = ({itemPic, itemName, onPressBack, navigation}) => {
             <Text style={styles.username}>{itemName}</Text>
             <TouchableOpacity 
                 onPress={()=>{
-                    navigation.navigate('Profile')
+                    navigation.navigate('Profile', {
+                        type: 'account'
+                    })
                 }}
             >
                 <Image 
-                    source={{uri:itemPic}} 
+                    source={require('../../assets/avatar.jpg')} 
                     style={styles.avatar}
                 />
             </TouchableOpacity>
