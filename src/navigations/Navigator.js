@@ -12,6 +12,7 @@ import Login from '../screens/Login';
 import ForgotPassword from '../screens/ForgotPassword';
 import SignUp from '../screens/SignUp';
 import Profile from '../screens/Profile';
+import ChatSetting from '../screens/ChatSetting';
 
 const Tab = createBottomTabNavigator();
 
@@ -60,6 +61,7 @@ const ChatStackNavigator = () => {
             <Stack.Screen name="ForgotPassword" component={ForgotPassword} />
             <Stack.Screen name="SignUp" component={SignUp} />
             <Stack.Screen name="Profile" component={Profile} />
+            <Stack.Screen name="ChatSetting" component={ChatSetting} />
         </Stack.Navigator>
     )
 }

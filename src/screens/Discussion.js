@@ -10,7 +10,7 @@ import Header from '../components/Discussion/Header';
 import ChatPanel from '../components/Discussion/ChatPanel';
 import Input from '../components/Discussion/InputChat';
 
-function usePrevious(value) {
+const usePrevious = (value) => {
     const ref = useRef();
     useEffect(() => {
       ref.current = value;
@@ -25,15 +25,15 @@ const Discussion = ({ route, navigation }) =>  {
     const [listMessage, setListMessage] = useState([])
     const [chatName, setChatName] = useState('')
     const [chatPhoto, setChatPhoto] = useState('')
-    const preState = usePrevious({chats})
+    const preState = usePrevious({chats: {}})
 
     useEffect(() => {
-        firebase.auth().onAuthStateChanged(async (user) => {
+        firebase.auth().onAuthStateChanged((user) => {
             if(!user) return navigation.navigate('Login')
-            await setUid(user['uid'])
-            await getChats()
-            if(JSON.stringify(preState.chats) !== JSON.stringify(chats)) {
-                await getMessage()
+            setUid(user['uid'])
+            getChats()
+            if(JSON.stringify(preState && preState['chats']) !== JSON.stringify(chats)) {
+                getMessage()
             }
         })
         setChatName(route.params.chatName)
@@ -104,7 +104,7 @@ const Discussion = ({ route, navigation }) =>  {
                     .collection('chats')
                     .onSnapshot(querySnapshot => {
                         querySnapshot.docs.forEach(doc => {
-                            if(doc.data()['members'].length == 2 && doc.data()['members'].includes(route.params.userId) && doc.data()['members'].includes(uid)) {
+                            if(doc.data()['members'].length == 2 && doc.data()['members'].includes(route.params.userId) && doc.data()['members'].includes(uid) && uid !== route.params.userId) {
                                 setChats({
                                     id: doc.id,
                                     ...doc.data()
@@ -125,6 +125,7 @@ const Discussion = ({ route, navigation }) =>  {
                         navigation.goBack()
                     }}
                     navigation={navigation}
+                    chatId={chats.id}
                 />
                 <ChatPanel
                     itemPic={chatPhoto}

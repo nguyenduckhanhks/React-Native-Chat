@@ -11,19 +11,19 @@ const randomTime = () => {
     return String(hFormat + hrs + ":"+ mFormat + mins + " " + amPm)
 }
 
-const ListChat = ({ username, uri, count, onPress }) => {
+const ListChat = ({ chatName, uri, count, onPress, lastMessage, lastTime }) => {
     return(
        <TouchableOpacity 
         onPress={onPress}
         style={styles.container}
        >       
-            <Image source={{uri: uri}} style={styles.image}/>
+            <Image source={require('../..//assets/avatar.jpg')} style={styles.image}/>
             <View style={{marginLeft:10}}>
-                <Text style={styles.username}>{username}</Text>
-                <Text style={styles.text}>Hello, How are you</Text>
+                <Text style={styles.chatName}>{chatName}</Text>
+                <Text style={styles.text}>{lastMessage}</Text>
             </View>
             <View style={{marginLeft:10}}>
-                <Text style={styles.duration}>{randomTime()}</Text>
+                <Text style={styles.duration}>{lastTime}</Text>
                 {
                 count > 0 ? (
                     <LinearGradient
@@ -78,7 +78,7 @@ const styles = StyleSheet.create({
         // position:'absolute',
         fontFamily:'Montserrat_600SemiBold'
     },
-    username:{
+    chatName:{
         color:'#000119',
         fontFamily:'Montserrat_700Bold'
     }

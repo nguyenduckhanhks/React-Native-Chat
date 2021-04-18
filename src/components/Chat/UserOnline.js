@@ -5,7 +5,7 @@ import {View,Text,StyleSheet,Image} from 'react-native';
 const UserOnline = ({username,uri}) => {
     return(
         <View style={styles.container}>
-            <Image source={{uri:uri}} style={styles.avatarStyle}/>
+            <Image source={require('../../assets/avatar.jpg')} style={styles.avatarStyle}/>
             <Text style={styles.nameStyle}>{username}</Text>
         </View>
     )

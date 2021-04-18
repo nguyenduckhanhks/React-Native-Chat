@@ -14,12 +14,14 @@ const ChatPanel = ({itemPic, dataMessage, uid}) => {
                 dataMessage.map(data => {
                     if(data['auth'] === uid) return (
                         <Sent
+                            key={data['id']}
                             message={data['message']}
                             create={data['create']}
                         />
                     ) 
                     else return (
                         <Received 
+                            key={data['id']}
                             image={itemPic}
                             message={data['message']}
                             create={data['create']}

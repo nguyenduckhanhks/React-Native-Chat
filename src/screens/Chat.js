@@ -4,23 +4,30 @@ import { ScrollView } from 'react-native-gesture-handler';
 import LinearGradient from 'react-native-linear-gradient';
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
+import firebase from 'react-native-firebase';
 
 import {users} from '../api/data';
 import UserOnline from '../components/Chat/UserOnline';
 import ListChat from '../components/Chat/ListChat';
 
 const Chat = (props) => {
-
-    const [loading, setLoading] = useState([true])
-
+    const [uid, setUid] = useState('')
+    const [loading, setLoading] = useState(true)
     const [userOnline, setUserOnline] = useState([])
+    const [chats, setChats] = useState({})
 
     const userOnlAnimate = useRef(new Animated.ValueXY()).current;
     const listChatAnimate = useRef(new Animated.ValueXY()).current;
 
     useEffect(() => {
-        setUserOnline(users)
-        setLoading(false)
+        firebase.auth().onAuthStateChanged((user) => {
+            if(!user) return navigation.navigate('Login')
+
+            setUid(user['uid'])
+            getUserOnline()
+            getChats()
+            setLoading(false)  
+        })
 
         Animated.timing(userOnlAnimate, {
             toValue:{x:-400,y:0},
@@ -33,7 +40,92 @@ const Chat = (props) => {
             delay:2000,
             useNativeDriver:false
         }).start();
-    })
+    }, [uid])
+
+    const getUserOnline = () => {
+        firebase.firestore()
+                .collection('users')
+                .where('status', '=' , 'online')
+                .onSnapshot(querySnapshot => {
+                    const usersData = querySnapshot.docs.map(doc => {
+                        const data = doc.data()
+                        return {
+                            uid: doc.id,
+                            ...data
+                        }
+                    })
+                    setUserOnline(usersData)
+                })
+    }
+
+    const getChats = () => {
+        firebase.firestore()
+                .collection('chats')
+                .where('members', 'array-contains', uid)
+                .onSnapshot(async querySnapshot => {
+                    const chats = {}
+                    querySnapshot.docs.forEach(async doc => {
+                        const data = doc.data()
+                        chats[doc.id] = {
+                            id: doc.id,
+                            ...data
+                        }
+                    })
+                    setChats(chats)
+                    querySnapshot.docs.map(doc => {
+                        getMessage(doc.id)
+                        if(doc.data()['name'] === '') {
+                            getNameMessage(doc.id, doc.data()['members'])
+                        }
+                    })
+                }) 
+    }
+
+    const getMessage = async(id) => {
+        return firebase.firestore()
+                .collection('messages')
+                .where('chat_id', '=', id)
+                .onSnapshot(async querySnapshot => {
+                    let count = 0
+                    const messageData =  await Promise.all(querySnapshot.docs.map(doc => {
+                        const data = doc.data()
+                        if(doc.data()['status'] == 'unread') count++
+                        return {
+                            id: doc.id,
+                            ...data
+                        }
+                    }).sort((a, b) =>
+                        a['create'] > b['create'] ? 1 : -1
+                    ))
+                    let newChat = {}
+                    Object.assign(newChat, chats)
+                    newChat[id]['count'] = count
+                    newChat[id]['lastMessage'] = messageData[messageData.length - 1] ? messageData[messageData.length - 1]['message'] : ''
+                    newChat[id]['lastTime'] = messageData[messageData.length - 1] ? messageData[messageData.length - 1]['create'] : ''
+                    setChats(newChat)
+                    // console.log(newChat)
+                })
+    }
+
+    const getNameMessage = (id, members) => {
+        members.forEach(userid => {
+            if(userid != uid) {
+                firebase.firestore()
+                    .collection('users')
+                    .doc(userid)
+                    .get()
+                    .then(res => {
+                        let newChat = {}
+                        Object.assign(newChat, chats)
+                        let newName = newChat['name']
+                        if(!newName) newName = res['_data']['name']
+                        else newName = newName + ', ' + res['_data']['name']
+                        newChat[id]['name'] = newName
+                        setChats(newChat)
+                    })
+            }
+        })
+    }
 
     return (
         <LinearGradient
@@ -62,8 +154,8 @@ const Chat = (props) => {
                             {
                                 userOnline.map((item, index) => (
                                     <UserOnline
-                                        key={item.id}
-                                        username={item.login}
+                                        key={item.uid}
+                                        username={item.name}
                                         uri={item.avatar_url}
                                     />
                                 ))
@@ -79,25 +171,23 @@ const Chat = (props) => {
                 </View>
                 <ScrollView>
                     {
-                        loading ? (<ActivityIndicator size='large' color='#f20042'/>):
+                        loading || Object.keys(chats).length == 0 ? (<ActivityIndicator size='large' color='#f20042'/>):
                         (
                             <Animated.View style={[listChatAnimate.getLayout(), styles.list]}>
                                 {
-                                        userOnline.map((item, index) => (
-                                            <ListChat
-                                                key={item.id}
-                                                username={item.login}
-                                                uri={item.avatar_url}
-                                                count={Math.floor(Math.random() * 3)}
-                                                onPress={()=>{
-                                                    props.navigation.navigate('Discussion',{
-                                                        itemId:item.id,
-                                                        itemName:item.login,
-                                                        itemPic:item.avatar_url
-                                                    });
-                                                }}
-                                            />
-                                        ))
+                                    Object.keys(chats).map((key) => (
+                                        <ListChat
+                                            key={key}
+                                            chatName={chats[key]['name']}
+                                            uri={''}
+                                            count={chats[key]['count'] ? chats[key]['count'] : 0}
+                                            lastMessage={chats[key]['lastMessage'] ? chats[key]['lastMessage'] : ''}
+                                            lastTime={chats[key]['lastTime'] ? chats[key]['lastTime'] : ''}
+                                            onPress={()=>{
+                                                props.navigation.navigate('Discussion');
+                                            }}
+                                        />
+                                    ))
                                 }
                             </Animated.View>
                         )

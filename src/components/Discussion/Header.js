@@ -3,7 +3,7 @@ import { View, Text, TouchableOpacity, Image, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/AntDesign'
 import LinearGradient from 'react-native-linear-gradient';
 
-const Header = ({itemPic, itemName, onPressBack, navigation}) => {
+const Header = ({itemPic, itemName, onPressBack, navigation, chatId}) => {
     return(
         <LinearGradient
             colors={['#f26a50','#f20045']}
@@ -17,8 +17,8 @@ const Header = ({itemPic, itemName, onPressBack, navigation}) => {
             <Text style={styles.username}>{itemName}</Text>
             <TouchableOpacity 
                 onPress={()=>{
-                    navigation.navigate('Profile', {
-                        type: 'account'
+                    navigation.navigate('ChatSetting', {
+                        chatId: chatId
                     })
                 }}
             >

@@ -48,6 +48,7 @@ const SignUp = (props) => {
             let newUser = {
                 name: name,
                 tel: tel,
+                email: email,
                 birthday: birthday,
                 gender: gender,
                 photo: '',

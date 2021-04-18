@@ -18,6 +18,7 @@ const Profile = (props) => {
     const [isEdit, setIsEdit] = useState(false)
 
     const [type, setType] = useState('')
+    const [isFriend, setIsFriend] = useState(false)
 
     useEffect(async () => {
         getData()
@@ -50,24 +51,23 @@ const Profile = (props) => {
         }
 
         if(props.route && props.route.params && props.route.params.type == 'account') {
-            let user = firebase.auth()
-            if(!user) return props.navigation.navigate('Login')
-
-            let uid = user['_user']['uid']
+            let uid = props.route.params.userId
             setUids(uid)
+
+            checkIsFriend()
             let userData = await firebase.firestore()
                     .collection('users')
                     .doc(uid)
                     .get()
             if(!userData['_data']) {
                 Alert.alert('Không tìm thấy thông tin người dùng!')
-                return props.navigation.navigate('Login')
+                return props.navigation.navigate('Home')
             }
             setBirthday(userData['_data']['birthday'])
             setName(userData['_data']['name'])
             setGender(userData['_data']['gender'])
             setTel(userData['_data']['tel'])
-            setEmail(user['_user']['email'])
+            setEmail(userData['_data']['email'])
             setType(props.route.params.type)
         }
     }
@@ -90,6 +90,45 @@ const Profile = (props) => {
                     })
         }
     }
+
+    const onAddFriend = () => {
+        if(props.route && props.route.params && props.route.params.type == 'account') {
+            let uid = props.route.params.userId
+            let userLogin = firebase.auth()
+            firebase.firestore()
+                    .collection('users')
+                    .doc(userLogin['_user']['uid'])
+                    .update({
+                        friends: firebase.firestore.FieldValue.arrayUnion(uid)
+                    })
+        }
+    }
+
+    const onRemoveFriend = () => {
+        if(props.route && props.route.params && props.route.params.type == 'account') {
+            let uid = props.route.params.userId
+            let userLogin = firebase.auth()
+            firebase.firestore()
+                    .collection('users')
+                    .doc(userLogin['_user']['uid'])
+                    .update({
+                        friends: firebase.firestore.FieldValue.arrayRemove(uid)
+                    })
+        }
+    }
+
+    const checkIsFriend = () => {
+        let uid = props.route.params.userId
+
+        firebase.firestore()
+                .collection('users')
+                .doc(firebase.auth()['_user']['uid'])
+                .onSnapshot(doc => {
+                    if(doc.data()['friends'] && doc.data()['friends'].includes(uid)) {
+                        setIsFriend(true)
+                    } else setIsFriend(false)
+                })
+    }
     
     return (
         <ScrollView showsVerticalScrollIndicator={false}>
@@ -110,7 +149,7 @@ const Profile = (props) => {
                             }}
                         />
                         {
-                            props.route.params.type === 'myProfile' && 
+                            type === 'myProfile' && 
                             <TouchableOpacity 
                                 style={{marginLeft: -30, marginTop: 13}} 
                                 onPress={() => {}}
@@ -122,14 +161,27 @@ const Profile = (props) => {
                         }
 
                         {
-                            props.route.params.type !== 'myProfile' && 
+                            type !== 'myProfile' && !isFriend &&
                             <TouchableOpacity 
                                 style={{marginLeft: -60, marginTop: 95}} 
-                                onPress={() => {}}
+                                onPress={() => onAddFriend()}
                             >
                                 <LinearGradient colors={['#f26a50', '#f20042', '#f20045']} style={{width: 30, height: 30,borderRadius: 15, alignItems: 'center', justifyContent: 'center'}}>
                                     <Icon style={{}} name="add-outline" size={18} color="#fff"/>
                                     {/* <Icon style={{}} name="checkmark-outline" size={18} color="#fff"/> */}
+                                </LinearGradient>
+                            </TouchableOpacity>
+                        }
+
+                        {
+                            type !== 'myProfile' && isFriend &&
+                            <TouchableOpacity 
+                                style={{marginLeft: -60, marginTop: 95}} 
+                                onPress={() => onRemoveFriend()}
+                            >
+                                <LinearGradient colors={['#f26a50', '#f20042', '#f20045']} style={{width: 30, height: 30,borderRadius: 15, alignItems: 'center', justifyContent: 'center'}}>
+                                    {/* <Icon style={{}} name="add-outline" size={18} color="#fff"/> */}
+                                    <Icon style={{}} name="checkmark-outline" size={18} color="#fff"/>
                                 </LinearGradient>
                             </TouchableOpacity>
                         }
@@ -219,7 +271,7 @@ const Profile = (props) => {
                 </View>
 
                 {
-                    !isEdit &&
+                    !isEdit && type === 'myProfile' &&
                     <TouchableOpacity 
                         style={styles.button} 
                         onPress={() => {
@@ -235,7 +287,7 @@ const Profile = (props) => {
 
                 <View style={{flexDirection: 'row'}}>
                 {
-                    isEdit &&
+                    isEdit && type === 'myProfile' &&
                     <TouchableOpacity 
                         style={[styles.button1, {marginLeft: '10%'}]} 
                         onPress={() => onUpdateMyProfile()}
@@ -248,7 +300,7 @@ const Profile = (props) => {
                 }
 
                 {
-                    isEdit &&
+                    isEdit && type === 'myProfile' &&
                     <TouchableOpacity 
                         style={[styles.button1, {marginLeft: '10%'}]} 
                         onPress={() => {
